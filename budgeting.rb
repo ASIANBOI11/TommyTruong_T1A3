@@ -56,8 +56,11 @@ class Budgeting
     @quit = true
     prompt = TTY::Prompt.new
     begin
-      file_selection = prompt.select('Which budget file would you like to edit', file_choosen, cycle: true)
-      
+      file_selection = prompt.select('Which budget file would you like to review', file_choosen, cycle: true)
+      json_selection = JSON.parse(File.read("./Budget-Files/#{file_selection}"))
+
+      edit_selection = prompt.select('Which one which you like to edit', 'The budget limit', 'The budget spent',
+                                     'The start of the budget date', 'The end of the budget date')
     rescue StandardError
       puts Rainbow("You've created no existing budgeting schedules").magenta
     end
@@ -145,8 +148,8 @@ end
 def file_choosen
   budget_file = []
   file = Dir.children './Budget-Files'
-  file.map do |file|
-    file = file.split('.DS_Store')
+  file.map do |q|
+    file = q.split('.DS_Store')
     budget_file << file
   end
   budget_file
