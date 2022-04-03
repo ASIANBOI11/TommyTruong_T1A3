@@ -10,8 +10,8 @@ class Budgeting
     while @quit == false
       prompt = TTY::Prompt.new
       font = TTY::Font.new(:doom)
-      puts font.write('                                             Budgeting   Application', letter_spacing: 0.5,
-                                                                                              center: 1)
+      puts font.write('Budgeting   Application', letter_spacing: 0.5,
+                                                 center: 1)
       user_input = prompt.select('Choose your available options',
                                  ['Create your budgeting schedule', 'Edit your budgeting schedule',
                                   'Delete your budgeting schedule',
@@ -21,11 +21,13 @@ class Budgeting
         system('clear')
         create_budget(budget_name_file)
       when 'Edit your budgeting schedule'
+        system('clear')
         edit_budget
       when 'Delete your budgeting schedule'
         puts 'Test'
       when 'Review your budget'
-        puts 'People are testing'
+        system('clear')
+        review_budget
       when 'Budget Savor'
         puts 'People are taking'
       when 'Quit'
@@ -50,15 +52,31 @@ class Budgeting
   def edit_budget
     @quit = true
     prompt = TTY::Prompt.new
-    file_selection = prompt.select('Which budget file would you like to edit', file_choosen, cycle: true)
+    begin
+      file_selection = prompt.select('Which budget file would you like to edit', file_choosen, cycle: true)
+    rescue StandardError
+      puts Rainbow("You've created no existing budgeting schedules").magenta
+    end
+  end
+
+  def review_budget
+    @quit = true
+    prompt = TTY::Prompt.new
+    file_selection = prompt.select('Which budget file would you like to review', file_choosen, cycle: true)
+    json_selection = JSON.parse(File.read("./Budget-Files/#{file_selection}"))
+
+    puts Rainbow("Your budget #{json_selection['budget_name']}")
   end
 
   # The names of the budget files variables that is stored as a hash
   def budget_name_file
     prompt = TTY::Prompt.new
+    font = TTY::Font.new(:doom)
+    puts font.write('Budget Creation', letter_spacing: 0.5)
     budget_name = prompt.ask("What's the name of your newly created budget: ") do |q|
       q.modify :strip
       q.required true
+      q.validate(/^\S+$/, "Please don't add add spaces for your budget name")
     end
 
     budget_amount = prompt.ask('What is your budget limit for the time interval $') do |q|
@@ -73,20 +91,25 @@ class Budgeting
       q.validate(/^[+]?([.]\d+|\d+[.]?\d*)$/, 'Please enter a positive number')
     end
 
-    budget_date = prompt.ask('What is the date of your budget: ') do |q|
+    budget_date_start = prompt.ask('What is the start date of your budget: ') do |q|
+      q.required true
+      q.validate(%r{(?<day>\d{1,2})/(?<month>\d{1,2})/(?<year>\d{4})}, 'Please enter a valid date DD/MM/YYYY')
+    end
+
+    budget_date_end = prompt.ask('What is the end date of your budget: ') do |q|
       q.required true
       q.validate(%r{(?<day>\d{1,2})/(?<month>\d{1,2})/(?<year>\d{4})}, 'Please enter a valid date DD/MM/YYYY')
     end
 
     { budget_name: budget_name.to_s, budget_amount: budget_amount.to_s, budget_spent: budget_spent,
-      budget_date: budget_date }
+      budget_date_start: budget_date_start, budget_date_end: budget_date_end }
   end
 end
 
 def file_choosen
   budget_file = []
   file = Dir.children './Budget-Files'
-  file.map! do |file|
+  file.map do |file|
     file = file.split('.DS_Store')
     budget_file << file
   end
