@@ -56,11 +56,38 @@ class Budgeting
     @quit = true
     prompt = TTY::Prompt.new
     begin
-      file_selection = prompt.select('Which budget file would you like to review', file_choosen, cycle: true)
+      file_selection = prompt.select('Which budget file would you like to review', file_choosen, 'back', cycle: true)
       json_selection = JSON.parse(File.read("./Budget-Files/#{file_selection}"))
 
       edit_selection = prompt.select('Which one which you like to edit', 'The budget limit', 'The budget spent',
                                      'The start of the budget date', 'The end of the budget date')
+      case edit_selection
+      when 'The budget limit'
+        puts Rainbow("Your current budget limit is #{json_selection['budget_amount']}")
+        new_budget_amount = prompt.ask('Enter your new budget limit: $') do |q|
+          q.required true
+          q.convert(:float, 'Please enter a number')
+          q.validate(/^[+]?([.]\d+|\d+[.]?\d*)$/, 'Please enter a positive number')
+        end
+      when 'The budget spent'
+        new_budget_amount = prompt.ask('Enter your new budget spent: $') do |q|
+          q.required true
+          q.convert(:float, 'Please enter a number')
+          q.validate(/^[+]?([.]\d+|\d+[.]?\d*)$/, 'Please enter a positive number')
+        end
+      when 'The start of the budget date'
+        new_budget_start_date = prompt.ask('Enter your new start date: ') do |q|
+          q.required true
+          q.validate(%r{(?<day>\d{1,2})/(?<month>\d{1,2})/(?<year>\d{4})}, 'Please enter a valid date DD/MM/YYYY')
+        end
+      when 'The end of the budget date'
+        new_budget_end_date = prompt.ask('Enter your new end date: ') do |q|
+          q.required true
+          q.validate(%r{(?<day>\d{1,2})/(?<month>\d{1,2})/(?<year>\d{4})}, 'Please enter a valid date DD/MM/YYYY')
+        end
+
+        
+      end
     rescue StandardError
       puts Rainbow("You've created no existing budgeting schedules").magenta
     end
@@ -143,6 +170,12 @@ class Budgeting
     { budget_name: budget_name.to_s, budget_amount: budget_amount, budget_spent: budget_spent,
       budget_date_start: budget_date_start, budget_date_end: budget_date_end }
   end
+end
+
+def number_requirements
+  q.required true
+  q.convert(:float, 'Please enter a number')
+  q.validate(/^[+]?([.]\d+|\d+[.]?\d*)$/, 'Please enter a positive number')
 end
 
 def file_choosen
