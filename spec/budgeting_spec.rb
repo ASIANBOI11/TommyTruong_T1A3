@@ -24,9 +24,12 @@ describe Budgeting do
     end
   end
 
-#   describe 'review budget' do
-#     it 'Displays the users budget information' do
-        
-
-#   end
+  describe 'File naming' do
+    it 'Allows names' do
+      expect('Tommy').to match(/^\S+$/)
+    end
+    it "Doesn't allow spaces" do
+      expect('Tommy Truong').to_not match(/^\S+$/)
+    end
+  end
 end
