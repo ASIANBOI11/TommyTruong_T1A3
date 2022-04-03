@@ -32,8 +32,6 @@ class Budgeting
         system('clear')
         puts font.write('Review Budget', letter_spacing: 0.5)
         review_budget
-      when 'Budget Savor'
-        budget_savor
       when 'Quit'
         system('clear')
         @quit = true
@@ -199,13 +197,6 @@ class Budgeting
   end
 end
 
-def budget_savor
-  @quit = true
-  prompt = TTY::Prompt.new
-  file_selection = prompt.select('Which budget file would you like to review', file_choosen, 'back', cycle: true)
-  json_selection = JSON.parse(File.read("./Budget-Files/#{file_selection}"))
-  budget_table(json_selection)
-end
 
 def number_requirements
   q.required true
