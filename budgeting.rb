@@ -69,28 +69,39 @@ class Budgeting
           q.convert(:float, 'Please enter a number')
           q.validate(/^[+]?([.]\d+|\d+[.]?\d*)$/, 'Please enter a positive number')
         end
+        json_selection['budget_amount'] = new_budget_amount
+        file_edit(file_selection, json_selection)
       when 'The budget spent'
-        new_budget_amount = prompt.ask('Enter your new budget spent: $') do |q|
+        new_budget_spent = prompt.ask('Enter your new budget spent: $') do |q|
           q.required true
           q.convert(:float, 'Please enter a number')
           q.validate(/^[+]?([.]\d+|\d+[.]?\d*)$/, 'Please enter a positive number')
         end
+        json_selection['budget_spent'] = new_budget_spent
+        file_edit(file_selection, json_selection)
       when 'The start of the budget date'
         new_budget_start_date = prompt.ask('Enter your new start date: ') do |q|
           q.required true
           q.validate(%r{(?<day>\d{1,2})/(?<month>\d{1,2})/(?<year>\d{4})}, 'Please enter a valid date DD/MM/YYYY')
         end
+        json_selection['budget_date_end'] = new_budget_start_date
+        file_edit(file_selection, json_selection)
       when 'The end of the budget date'
         new_budget_end_date = prompt.ask('Enter your new end date: ') do |q|
           q.required true
           q.validate(%r{(?<day>\d{1,2})/(?<month>\d{1,2})/(?<year>\d{4})}, 'Please enter a valid date DD/MM/YYYY')
         end
-
-        
+        json_selection['budget_date_end'] = new_budget_end_date
+        file_edit(file_selection, json_selection)
       end
     rescue StandardError
       puts Rainbow("You've created no existing budgeting schedules").magenta
     end
+  end
+
+  def file_edit(file_path, json_path)
+    File.write("Budget-Files/#{file_path}", JSON.pretty_generate(json_path))
+    puts Rainbow('Your details have been updated.').magenta
   end
 
   def delete_budget
@@ -118,13 +129,14 @@ class Budgeting
     file_selection = prompt.select('Which budget file would you like to review', file_choosen, cycle: true)
     json_selection = JSON.parse(File.read("./Budget-Files/#{file_selection}"))
 
-    puts Rainbow("Your budget name is #{json_selection['budget_name']}")
-    puts Rainbow("You've created this budget at #{json_selection['budget_date_start']} and the end goal of your budget date is #{json_selection['budget_date_end']}")
-    puts Rainbow("The goal limit for the budget between the dates is $#{json_selection['budget_spent']}")
+    puts Rainbow("Your budget name is #{json_selection['budget_name']}").yellow
     puts Rainbow("Your budget limit is $#{json_selection['budget_amount']}")
+    puts Rainbow("The budget spent so far is $#{json_selection['budget_spent']}")
+    puts Rainbow("This budget started at #{json_selection['budget_date_start']}")
+    puts Rainbow("The budget ends at #{json_selection['budget_date_end']}")
 
     overbudget_stats(json_selection['budget_amount'], json_selection['budget_spent'])
-    puts Rainbow('Go to budget savor to see if you can save some more money and make comparison on your previous budget schedule')
+    puts Rainbow('Go to budget savor to see if you can save some more money')
     @quit = false
   end
 
