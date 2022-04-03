@@ -2,6 +2,7 @@ require 'tty-prompt'
 require 'tty-font'
 require 'json'
 require 'rainbow'
+require 'tty-table'
 
 class Budgeting
   def main_menu
@@ -32,7 +33,7 @@ class Budgeting
         puts font.write('Review Budget', letter_spacing: 0.5)
         review_budget
       when 'Budget Savor'
-        puts 'People are taking'
+        budget_savor
       when 'Quit'
         system('clear')
         @quit = true
@@ -97,6 +98,7 @@ class Budgeting
     rescue StandardError
       puts Rainbow("You've created no existing budgeting schedules").magenta
     end
+    @quit = false
   end
 
   def file_edit(file_path, json_path)
@@ -137,7 +139,20 @@ class Budgeting
 
     overbudget_stats(json_selection['budget_amount'], json_selection['budget_spent'])
     puts Rainbow('Go to budget savor to see if you can save some more money')
+
+    budget_table(json_selection)
     @quit = false
+  end
+
+  def budget_table(json_path)
+    json_arr = []
+    json_path.each_value { |value| json_arr << value }
+
+    table = TTY::Table.new(['Name', 'Budget Limit ($)', 'Budget Spent ($)', 'Budget Start Date', 'Budget End Date'],
+                           [json_arr])
+    puts table.render(:ascii)
+  rescue StandardError
+    puts 'There are no files to review'
   end
 
   def overbudget_stats(limit, spent)
@@ -185,7 +200,11 @@ class Budgeting
 end
 
 def budget_savor
-
+  @quit = true
+  prompt = TTY::Prompt.new
+  file_selection = prompt.select('Which budget file would you like to review', file_choosen, 'back', cycle: true)
+  json_selection = JSON.parse(File.read("./Budget-Files/#{file_selection}"))
+  budget_table(json_selection)
 end
 
 def number_requirements
