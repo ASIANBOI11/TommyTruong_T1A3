@@ -16,7 +16,7 @@ class Budgeting
       user_input = prompt.select('Choose your available options',
                                  ['Create your budgeting schedule', 'Edit your budgeting schedule',
                                   'Delete your budgeting schedule',
-                                  'Review your budget', 'Budget Savor', 'Quit'], cycle: true)
+                                  'Review your budget', 'Quit'], cycle: true)
       case user_input
       when 'Create your budgeting schedule'
         system('clear')
@@ -26,6 +26,7 @@ class Budgeting
         system('clear')
         edit_budget
       when 'Delete your budgeting schedule'
+        system('clear')
         puts font.write('Budget Delete', letter_spacing: 1)
         delete_budget
       when 'Review your budget'
@@ -47,13 +48,15 @@ class Budgeting
       file.write(budget_info.to_json)
     end
     puts Rainbow('A new budget file has been created').magenta
-    puts Rainbow('Please go to review to see your budget information')
+    puts Rainbow('Please go to review to see your budget information').magenta
     @quit = false
   end
 
   def edit_budget
     @quit = true
     prompt = TTY::Prompt.new
+    font = TTY::Font.new(:doom)
+    puts font.write("Budget Edit")
     begin
       file_selection = prompt.select('Which budget file would you like to review', file_choosen, 'back', cycle: true)
       json_selection = JSON.parse(File.read("./Budget-Files/#{file_selection}"))
@@ -126,17 +129,18 @@ class Budgeting
   def review_budget
     @quit = true
     prompt = TTY::Prompt.new
+    font = TTY::Font.new(:doom)
+    puts font.write("Budget Review")
     file_selection = prompt.select('Which budget file would you like to review', file_choosen, cycle: true)
     json_selection = JSON.parse(File.read("./Budget-Files/#{file_selection}"))
 
     puts Rainbow("Your budget name is #{json_selection['budget_name']}").yellow
-    puts Rainbow("Your budget limit is $#{json_selection['budget_amount']}")
-    puts Rainbow("The budget spent so far is $#{json_selection['budget_spent']}")
-    puts Rainbow("This budget started at #{json_selection['budget_date_start']}")
-    puts Rainbow("The budget ends at #{json_selection['budget_date_end']}")
+    puts Rainbow("Your budget limit is $#{json_selection['budget_amount']}").white
+    puts Rainbow("The budget spent so far is $#{json_selection['budget_spent']}").yellow
+    puts Rainbow("This budget started at #{json_selection['budget_date_start']}").white
+    puts Rainbow("The budget ends at #{json_selection['budget_date_end']}").yellow
 
     overbudget_stats(json_selection['budget_amount'], json_selection['budget_spent'])
-    puts Rainbow('Go to budget savor to see if you can save some more money')
 
     budget_table(json_selection)
     @quit = false
@@ -148,16 +152,16 @@ class Budgeting
 
     table = TTY::Table.new(['Name', 'Budget Limit ($)', 'Budget Spent ($)', 'Budget Start Date', 'Budget End Date'],
                            [json_arr])
-    puts table.render(:ascii)
+    puts Rainbow(table.render(:ascii)).yellow
   rescue StandardError
     puts 'There are no files to review'
   end
 
   def overbudget_stats(limit, spent)
     if spent > limit
-      puts Rainbow("You are over the budget by $#{spent - limit}")
+      puts Rainbow("You are over the budget by $#{spent - limit}").white
     else
-      puts Rainbow("You are under budget by $#{limit - spent}")
+      puts Rainbow("You are under budget by $#{limit - spent}").white
     end
   end
 
@@ -196,7 +200,6 @@ class Budgeting
       budget_date_start: budget_date_start, budget_date_end: budget_date_end }
   end
 end
-
 
 def number_requirements
   q.required true
