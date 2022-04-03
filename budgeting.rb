@@ -180,7 +180,7 @@ class Budgeting
       q.validate(/^[+]?([.]\d+|\d+[.]?\d*)$/, 'Please enter a positive number')
     end
 
-    budget_spent = prompt.ask("The amount you've spent during your budget time internval") do |q|
+    budget_spent = prompt.ask("The amount you've spent during your budget time interval") do |q|
       q.required true
       q.convert(:float, 'Please enter a number')
       q.validate(/^[+]?([.]\d+|\d+[.]?\d*)$/, 'Please enter a positive number')
@@ -217,5 +217,4 @@ def file_choosen
   budget_file
 end
 
-budgeting = Budgeting.new
-budgeting.main_menu
+
