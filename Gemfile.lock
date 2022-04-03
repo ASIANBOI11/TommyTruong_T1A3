@@ -19,6 +19,11 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.11.0)
     rspec-support (3.11.0)
+    strings (0.2.1)
+      strings-ansi (~> 0.2)
+      unicode-display_width (>= 1.5, < 3.0)
+      unicode_utils (~> 1.4)
+    strings-ansi (0.2.0)
     tty-color (0.6.0)
     tty-cursor (0.7.1)
     tty-font (0.5.0)
@@ -30,6 +35,12 @@ GEM
       tty-screen (~> 0.8)
       wisper (~> 2.0)
     tty-screen (0.8.1)
+    tty-table (0.12.0)
+      pastel (~> 0.8)
+      strings (~> 0.2.0)
+      tty-screen (~> 0.8)
+    unicode-display_width (2.1.0)
+    unicode_utils (1.4.0)
     wisper (2.0.1)
 
 PLATFORMS
@@ -41,6 +52,7 @@ DEPENDENCIES
   rspec (~> 3.11)
   tty-font (~> 0.5.0)
   tty-prompt (~> 0.23.1)
+  tty-table (~> 0.12.0)
 
 BUNDLED WITH
    2.3.10

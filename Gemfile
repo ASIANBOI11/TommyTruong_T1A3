@@ -13,3 +13,5 @@ gem 'rspec', '~> 3.11'
 gem 'json', '~> 2.6'
 
 gem "rainbow", "~> 3.1"
+
+gem "tty-table", "~> 0.12.0"

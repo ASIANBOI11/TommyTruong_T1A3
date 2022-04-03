@@ -184,6 +184,10 @@ class Budgeting
   end
 end
 
+def budget_savor
+
+end
+
 def number_requirements
   q.required true
   q.convert(:float, 'Please enter a number')
